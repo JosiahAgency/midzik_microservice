@@ -22,7 +22,7 @@ public class GatewayApplication {
 		return builder.routes()
 				.route("authentication",r -> r
 					.path("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/user", "/api/v1/auth/admin")
-					.filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
+					// .filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
 					.uri("lb://authentication")
 				)
 				.route("advertisement",r -> r

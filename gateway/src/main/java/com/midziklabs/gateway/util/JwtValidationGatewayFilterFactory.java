@@ -31,7 +31,6 @@ public class JwtValidationGatewayFilterFactory extends AbstractGatewayFilterFact
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             String token = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            log.info("Token from header: "+token);
 
             if (token == null || !token.startsWith("Bearer ")) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -54,10 +53,8 @@ public class JwtValidationGatewayFilterFactory extends AbstractGatewayFilterFact
                 ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                         .header("X-User-Roles", String.join(",", roles))
                         .build();
-                log.info("modifiedRequest: "+modifiedRequest.getHeaders().toString());
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
             } catch (Throwable e){
-                log.error("JWT Token verification error", e.getMessage());
                 exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
                 return exchange.getResponse().setComplete();
             }
