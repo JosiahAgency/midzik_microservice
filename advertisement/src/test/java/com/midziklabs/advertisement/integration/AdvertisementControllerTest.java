@@ -14,7 +14,6 @@ import javax.print.attribute.standard.Media;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -36,10 +35,7 @@ import com.midziklabs.advertisement.service.CategoryService;
 import com.midziklabs.advertisement.service.FileStorageService;
 import com.midziklabs.advertisement.service.LocationService;
 
-import lombok.extern.slf4j.Slf4j;
-
 @WebMvcTest(AdvertisementController.class)
-@Slf4j
 public class AdvertisementControllerTest {
     List<AdvertisementModel> advertisement_list = new ArrayList<AdvertisementModel>();
     List<LocationModel> location_list = new ArrayList<LocationModel>();
@@ -96,8 +92,6 @@ public class AdvertisementControllerTest {
         MockMultipartFile visuals = new MockMultipartFile("visuals", "sample.jpg", "image/jpeg", "test image content".getBytes());
         List<Long> location_ids = new ArrayList<>();
         location_ids.add(1L);
-        
-        log.info("Location ids: "+objectMapper.writeValueAsString(location_ids));
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/advertisement/")
                 .file(visuals)
                 .param("title", "Test Title")
