@@ -10,12 +10,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpStatus;
 import org.springframework.data.util.Optionals;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.midziklabs.advertisement.feignclient.model.AuthUser;
+import com.midziklabs.advertisement.feignclient.repository.AuthenticationClient;
 import com.midziklabs.advertisement.model.AdvertisementModel;
 import com.midziklabs.advertisement.model.CategoryModel;
 import com.midziklabs.advertisement.model.LocationModel;
@@ -34,6 +40,8 @@ public class AdvertisementService {
     private final FileStorageService fileStorageService;
     private final CategoryService categoryService;
     private final LocationService locationService;
+    private final AuthenticationClient authenticationClient;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public AdvertisementModel addAdvertisement(AdvertisementRequest request) throws JsonMappingException, JsonProcessingException{
@@ -67,6 +75,24 @@ public class AdvertisementService {
 
     public List<AdvertisementModel> getAdvertisementsByLocation(Long location_id){
         return advertisementRepository.findByLocation(location_id);
+    }
+
+    public List<AdvertisementModel> getAdvertisementByUser(String token) throws Exception{
+        try {
+            ResponseEntity<?> response = authenticationClient.getAuthenticatedUser(token);
+            log.info("Response:");
+            if (response.getStatusCode() != HttpStatusCode.valueOf(200)) {
+                throw new Exception();
+            }
+            Object response_body = response.getBody();
+            AuthUser auth_user = objectMapper.convertValue(response_body, AuthUser.class);
+            log.info(auth_user.toString());
+            log.info("Authenticated user: " + auth_user.toString());
+            return advertisementRepository.findByUserId(auth_user.getId());
+        } catch (Exception e) {
+            log.error("getAdvertisementByUser Error!!", e);
+            throw e;
+        }
     }
 
 }

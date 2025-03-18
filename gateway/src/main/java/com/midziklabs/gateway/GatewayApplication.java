@@ -21,7 +21,7 @@ public class GatewayApplication {
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder, JwtValidationGatewayFilterFactory jwtValidationFilter) {
 		return builder.routes()
 				.route("authentication",r -> r
-					.path("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/user", "/api/v1/auth/admin")
+					.path("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/user", "/api/v1/auth/admin", "/api/v1/auth/auth-user")
 					// .filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
 					.uri("lb://authentication")
 				)

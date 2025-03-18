@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, base_url + "/advertisement/").hasAuthority("User")
                         .requestMatchers(HttpMethod.GET, base_url + "/advertisement/location/id/{id}").hasAuthority("Administrator")
                         .requestMatchers(HttpMethod.GET, base_url + "/advertisement/").hasAuthority("Administrator")
+                        .requestMatchers(HttpMethod.GET, base_url+"/advertisement/user").hasAuthority("User")
                         /* Category routes */
                         .requestMatchers(HttpMethod.GET, base_url + "/category/").hasAnyAuthority("Administrator", "User")
                         .requestMatchers(HttpMethod.GET, base_url + "/category/name/{name}").hasAnyAuthority("Administrator")

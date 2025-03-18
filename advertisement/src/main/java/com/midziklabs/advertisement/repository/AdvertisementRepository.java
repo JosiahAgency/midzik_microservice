@@ -14,4 +14,5 @@ public interface AdvertisementRepository extends JpaRepository<AdvertisementMode
     //
     @Query("SELECT s FROM AdvertisementModel s JOIN s.location c WHERE c.id = :location_id")
     List<AdvertisementModel> findByLocation(@Param("location_id") Long id);
+    List<AdvertisementModel> findByUserId(Long id);
 }

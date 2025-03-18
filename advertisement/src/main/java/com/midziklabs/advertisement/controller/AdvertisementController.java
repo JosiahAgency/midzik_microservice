@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 
@@ -75,6 +76,18 @@ public class AdvertisementController {
     @GetMapping("/location/id/{location_id}")
     public ResponseEntity getAdvertisementByLocationId(@PathVariable("location_id") Integer id) {
         return ResponseEntity.ok().body(advertisementService.getAdvertisementsByLocation(Long.valueOf(id)));
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getAdvertisementByUser(@RequestHeader("Authorization") String authString){
+        try {
+            advertisementService.getAdvertisementByUser(authString);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("ADvertisement by user error: ", e);
+            return ResponseEntity.internalServerError().body("An error occurred when try to get users\' adveertisements");
+        }
+        
     }
     
     

@@ -42,6 +42,6 @@ public class AdvertisementModel {
     )
     private Set<LocationModel> location;
     private String file_path;
-    // private Integer loops;
+    private Integer loops;
 }
 

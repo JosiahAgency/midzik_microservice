@@ -1,6 +1,7 @@
 package com.midziklabs.authentication.utils;
 
 import java.io.IOException;
+import java.security.SignatureException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.midziklabs.authentication.service.JwtService;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException 
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
         final String authHeader = request.getHeader("Authorization");
         log.info("Auth header: "+authHeader);
@@ -47,15 +50,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             log.info("Starting JWT filter");
-            final String jwt = authHeader.substring(7);
+            String jwt = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(jwt);
             log.info("JWT token extracted: "+jwt);
             log.info("Email: "+userEmail);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
+                log.info("Validating jwt token");
                 if (jwtService.isTokenValid(jwt)) {
+                    log.info("Token is valid");
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -64,14 +68,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info("Security context set");
+                } else {
+                    log.error("token has expired");
                 }
             }
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            // handlerExceptionResolver.resolveException(request, response, null, e);
-            log.error("Authentication fiter error");
-            log.error(e.toString());
-        }
+        } catch (ExpiredJwtException e) {
+            log.error("Authentication filter error: JWT Token has expired");
+            log.error("", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token expired");
+        } catch(MalformedJwtException e){
+            log.error("Malformed JWT Exception", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Malformed token");
+        } catch(Exception e){
+            log.error("AuthenticationFilter error");
+            log.error("", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("An error occurred in the JWTAuthenticationFilter");
+        } 
     }
 
 }

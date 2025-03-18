@@ -33,7 +33,7 @@ public class AdvertisementRequest {
     private Long category_id;
     private MultipartFile visuals;
     private String location_ids;
-    // private Integer loops = 100;
+    private Integer loops;
 
     public AdvertisementModel toAdvertisementModel(String file_path, Optional<CategoryModel> category,Set<LocationModel> location_set_list) {
         AdvertisementModel model = new AdvertisementModel();
@@ -45,6 +45,7 @@ public class AdvertisementRequest {
         model.setUser_id(2);
         model.setFile_path(file_path);
         model.setLocation(location_set_list);
+        model.setLoops(loops);
         return model;
     }
 }

@@ -56,17 +56,16 @@ public class JwtUtil {
 
         } catch (ExpiredJwtException e) {
             log.error("Token expired", e.getMessage());
-            return false; // Token expired
+            throw e;
         } catch (MalformedJwtException e) {
             log.error("Malformed JWT token", e.getMessage());
-            return false; // Malformed token
+            throw e;
         } catch (SignatureException e) {
             log.error("Invalid JWT token signature", e.getMessage());
-            return false; // Invalid signature
+            throw e;
         } catch (Exception e) {
             log.error("an erro occured when trying to validate JWT token", e.getMessage());
-            log.error("Error", e);
-            return false; // Other exceptions
+            throw e;
         }
     }
     

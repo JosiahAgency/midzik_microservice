@@ -4,9 +4,12 @@ import java.util.Optional;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import com.midziklabs.authentication.configuration.ApplicationConfiguration;
 import com.midziklabs.authentication.dto.LoginUserDto;
 import com.midziklabs.authentication.dto.RegisterUserDto;
 import com.midziklabs.authentication.model.RoleModel;
@@ -52,6 +55,19 @@ public class AuthenticationService {
         );
         return userRepository.findByEmail(loginUserDto.getEmail())
             .orElseThrow();
+    }
+
+    public Optional<UserModel> getAuthenticatedUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated()){
+            Object principal = authentication.getPrincipal();
+            if(principal instanceof UserDetails){
+                UserDetails userDetails = (UserDetails) principal;
+                String user_email = userDetails.getUsername();
+                return userRepository.findByEmail(user_email);
+            }
+        }
+        return Optional.empty(); 
     }
     
 }
