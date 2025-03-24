@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.midziklabs.advertisement.model.CategoryModel;
 import com.midziklabs.advertisement.repository.CategoryRepository;
-import com.midziklabs.advertisement.request.CategoryRequest;
+import com.midziklabs.advertisement.requestDto.CategoryRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

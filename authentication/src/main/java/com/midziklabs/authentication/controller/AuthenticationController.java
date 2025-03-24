@@ -16,6 +16,8 @@ import com.midziklabs.authentication.service.JwtService;
 import com.midziklabs.authentication.service.UserService;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +78,14 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDto loginUserDto) {
         UserModel authenticatedUSer = authenticationService.login(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUSer);
+        // Cookie cookie = new Cookie("token", jwtToken);
+        // cookie.setHttpOnly(true);
+        // cookie.setSecure(true);
+        // cookie.setMaxAge(1800);
+        // cookie.setPath("/");
+        // response.addCookie(cookie);
+        // log.info("LOGIN REPOSNSE");
+        // log.info(response.toString());
         LoginResponse response = new LoginResponse();
         response.setToken(jwtToken);
         response.setExpiresIn(jwtService.getExpirationTime());
@@ -99,6 +109,7 @@ public class AuthenticationController {
             );
         }
     }
+    
     
     
 }

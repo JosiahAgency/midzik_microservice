@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.midziklabs.advertisement.controller.LocationController;
 import com.midziklabs.advertisement.model.LocationModel;
-import com.midziklabs.advertisement.request.LocationRequest;
+import com.midziklabs.advertisement.requestDto.LocationRequest;
 import com.midziklabs.advertisement.service.LocationService;
 
 @WebMvcTest(LocationController.class)

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.midziklabs.advertisement.model.CategoryModel;
-import com.midziklabs.advertisement.request.CategoryRequest;
+import com.midziklabs.advertisement.requestDto.CategoryRequest;
 import com.midziklabs.advertisement.service.CategoryService;
 
 import lombok.RequiredArgsConstructor;

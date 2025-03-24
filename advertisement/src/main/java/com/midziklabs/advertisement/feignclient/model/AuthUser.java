@@ -1,7 +1,5 @@
 package com.midziklabs.advertisement.feignclient.model;
 
-import com.google.gson.annotations.JsonAdapter;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

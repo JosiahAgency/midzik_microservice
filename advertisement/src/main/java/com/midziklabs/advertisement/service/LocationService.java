@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.midziklabs.advertisement.model.LocationModel;
 import com.midziklabs.advertisement.repository.LocationRepository;
-import com.midziklabs.advertisement.request.LocationRequest;
+import com.midziklabs.advertisement.requestDto.LocationRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

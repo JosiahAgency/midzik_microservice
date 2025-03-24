@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.midziklabs.advertisement.model.LocationModel;
-import com.midziklabs.advertisement.request.LocationRequest;
+import com.midziklabs.advertisement.requestDto.LocationRequest;
 import com.midziklabs.advertisement.service.LocationService;
 
 import lombok.RequiredArgsConstructor;

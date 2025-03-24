@@ -1,4 +1,4 @@
-package com.midziklabs.advertisement.request;
+package com.midziklabs.advertisement.requestDto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,9 +40,9 @@ public class AdvertisementRequest {
         model.setTitle(this.getTitle());
         model.setDescription(this.getDescription());
         model.setCategory(category.get());
-        model.setIs_approved(false);
+        model.setStatus("Pending");
         model.setReviewer_id(1);
-        model.setUser_id(2);
+        model.setUserId(2);
         model.setFile_path(file_path);
         model.setLocation(location_set_list);
         model.setLoops(loops);

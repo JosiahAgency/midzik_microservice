@@ -1,11 +1,16 @@
 package com.midziklabs.advertisement.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.midziklabs.advertisement.exceptions.StorageFileNotFoundException;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.*;
 
 @Service
@@ -40,4 +45,21 @@ public class FileStorageService {
     public Path loadFile(String fileName) {
         return fileStorageLocation.resolve(fileName).normalize();
     }
+    public Resource loadAsResource(String filename) {
+		try {
+			Path file = loadFile(filename);
+			Resource resource = new UrlResource(file.toUri());
+			if (resource.exists() || resource.isReadable()) {
+				return resource;
+			}
+			else {
+				throw new StorageFileNotFoundException(
+						"Could not read file: " + filename);
+
+			}
+		}
+		catch (MalformedURLException e) {
+			throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+		}
+	}
 }
