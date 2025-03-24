@@ -28,9 +28,9 @@ public class AdvertisementModel {
     private Long id;
     private String title;
     private String description;
-    private Integer user_id;
+    private Integer userId;
     private Integer reviewer_id;
-    private Boolean is_approved;
+    private String status;
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = true)
     private CategoryModel category;

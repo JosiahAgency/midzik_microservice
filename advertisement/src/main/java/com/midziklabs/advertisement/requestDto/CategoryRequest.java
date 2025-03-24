@@ -1,4 +1,4 @@
-package com.midziklabs.advertisement.request;
+package com.midziklabs.advertisement.requestDto;
 
 import com.midziklabs.advertisement.model.CategoryModel;
 

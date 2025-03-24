@@ -1,5 +1,6 @@
 package com.midziklabs.advertisement.service;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.lang.reflect.AccessFlag.Location;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
+import org.springframework.core.io.Resource;
 import org.springframework.data.util.Optionals;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +22,15 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.midziklabs.advertisement.exceptions.StorageFileNotFoundException;
 import com.midziklabs.advertisement.feignclient.model.AuthUser;
 import com.midziklabs.advertisement.feignclient.repository.AuthenticationClient;
 import com.midziklabs.advertisement.model.AdvertisementModel;
 import com.midziklabs.advertisement.model.CategoryModel;
 import com.midziklabs.advertisement.model.LocationModel;
 import com.midziklabs.advertisement.repository.AdvertisementRepository;
-import com.midziklabs.advertisement.request.AdvertisementRequest;
+import com.midziklabs.advertisement.requestDto.AdvertisementRequest;
+import com.midziklabs.advertisement.responseDto.AdvertisementByUserResponse;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -88,11 +92,24 @@ public class AdvertisementService {
             AuthUser auth_user = objectMapper.convertValue(response_body, AuthUser.class);
             log.info(auth_user.toString());
             log.info("Authenticated user: " + auth_user.toString());
-            return advertisementRepository.findByUserId(auth_user.getId());
+            List<AdvertisementModel> ad_list = advertisementRepository.findByUserId(auth_user.getId());
+            // List<AdvertisementByUserResponse> ad_response_list = new ArrayList<>();
+            // for (AdvertisementModel model : ad_list) {
+            //     Resource filResource = fileStorageService.loadAsResource(model.getFile_path());
+            //     AdvertisementByUserResponse ad_response = objectMapper.convertValue(model, AdvertisementByUserResponse.class);
+            //     ad_response.setAd_visual(filResource);
+            //     log.info("ADVERTISMENT RESPONSE OBJ");
+            //     log.info(ad_response.toString());
+            //     ad_response_list.add(ad_response);
+            // }
+            return ad_list;
         } catch (Exception e) {
             log.error("getAdvertisementByUser Error!!", e);
             throw e;
         }
     }
 
+    public Resource getAdvertisementVisual(String filename) throws StorageFileNotFoundException{
+        return fileStorageService.loadAsResource(filename);
+    }
 }

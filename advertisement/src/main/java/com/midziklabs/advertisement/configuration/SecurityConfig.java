@@ -31,22 +31,31 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(r -> r
                         .requestMatchers(HttpMethod.POST, base_url + "/advertisement/").hasAuthority("User")
-                        .requestMatchers(HttpMethod.GET, base_url + "/advertisement/location/id/{id}").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.GET, base_url + "/advertisement/").hasAuthority("Administrator")
+                        .requestMatchers(HttpMethod.GET, base_url + "/advertisement/location/id/{id}").hasAnyAuthority("Administrator", "Reviewer")
+                        .requestMatchers(HttpMethod.GET, base_url + "/advertisement/").hasAnyAuthority("Administrator","Reviewer")
                         .requestMatchers(HttpMethod.GET, base_url+"/advertisement/user").hasAuthority("User")
+                        .requestMatchers(HttpMethod.GET, base_url+"/advertisement/visual").hasAnyAuthority("Administrator", "Reviewer", "User")
                         /* Category routes */
-                        .requestMatchers(HttpMethod.GET, base_url + "/category/").hasAnyAuthority("Administrator", "User")
-                        .requestMatchers(HttpMethod.GET, base_url + "/category/name/{name}").hasAnyAuthority("Administrator")
-                        .requestMatchers(HttpMethod.GET, base_url + "/category/id/{id}").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.DELETE, base_url + "/category/").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.POST, base_url + "/category/").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.PUT, base_url + "/category/{id}").hasAuthority("Administrator")
+                        .requestMatchers(HttpMethod.GET, base_url + "/category/").hasAnyAuthority("Administrator", "User", "Reviewer")
+                        .requestMatchers(HttpMethod.GET, base_url + "/category/name/{name}").hasAnyAuthority("Administrator", "User")
+                        .requestMatchers(HttpMethod.GET, base_url + "/category/id/{id}").hasAnyAuthority(
+                                "Administrator", "Reviewer")
+                        .requestMatchers(HttpMethod.DELETE, base_url + "/category/").hasAnyAuthority("Administrator",
+                                "Reviewer")
+                        .requestMatchers(HttpMethod.POST, base_url + "/category/").hasAnyAuthority("Administrator",
+                                "Reviewer")
+                        .requestMatchers(HttpMethod.PUT, base_url + "/category/{id}").hasAnyAuthority("Administrator",
+                                "Reviewer")
                         /* Location routes */
-                        .requestMatchers(HttpMethod.POST, base_url + "/location/").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.GET, base_url + "/location/").hasAnyAuthority("Administrator", "User")
-                        .requestMatchers(HttpMethod.PUT, base_url + "/location/{id}").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.GET, base_url + "/location/id/{id}").hasAuthority("Administrator")
-                        .requestMatchers(HttpMethod.DELETE, base_url + "/location/{id}").hasAuthority("Administrator")
+                        .requestMatchers(HttpMethod.POST, base_url + "/location/").hasAnyAuthority("Administrator",
+                                "Reviewer")
+                        .requestMatchers(HttpMethod.GET, base_url + "/location/").hasAnyAuthority("Administrator", "User", "Reviewer")
+                        .requestMatchers(HttpMethod.PUT, base_url + "/location/{id}").hasAnyAuthority("Administrator",
+                                "Reviewer")
+                        .requestMatchers(HttpMethod.GET, base_url + "/location/id/{id}").hasAnyAuthority(
+                                "Administrator", "Reviewer")
+                        .requestMatchers(HttpMethod.DELETE, base_url + "/location/{id}").hasAnyAuthority(
+                                "Administrator", "Reviewer")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);
         return http.build();

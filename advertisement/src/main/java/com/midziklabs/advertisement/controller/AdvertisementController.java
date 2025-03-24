@@ -3,6 +3,8 @@ package com.midziklabs.advertisement.controller;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.midziklabs.advertisement.exceptions.StorageFileNotFoundException;
 import com.midziklabs.advertisement.model.AdvertisementModel;
-import com.midziklabs.advertisement.request.AdvertisementRequest;
+import com.midziklabs.advertisement.requestDto.AdvertisementRequest;
+import com.midziklabs.advertisement.responseDto.AdvertisementByUserResponse;
 import com.midziklabs.advertisement.service.AdvertisementService;
 
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,7 @@ public class AdvertisementController {
         @RequestParam("description") String description, 
         @RequestParam("category_id") String category_id, 
         @RequestParam("location_ids") String location_ids,
+        @RequestParam("loops") String loops,
         @RequestPart("visuals") MultipartFile visuals) {
         try {
             log.error("LOcation ids received: "+location_ids);
@@ -52,6 +57,7 @@ public class AdvertisementController {
             request.setCategory_id(Long.valueOf(category_id));
             request.setVisuals(visuals);
             request.setLocation_ids(location_ids);
+            request.setLoops(Integer.valueOf(loops));
             AdvertisementModel savedAdverisement = advertisementService.addAdvertisement(request);
             URI location = URI.create(String.format("/api/v1/advertisement/%s", savedAdverisement.getId()));
             return ResponseEntity.created(location).body(savedAdverisement);
@@ -81,13 +87,24 @@ public class AdvertisementController {
     @GetMapping("/user")
     public ResponseEntity<?> getAdvertisementByUser(@RequestHeader("Authorization") String authString){
         try {
-            advertisementService.getAdvertisementByUser(authString);
-            return ResponseEntity.ok().build();
+            List<AdvertisementModel> ads = advertisementService.getAdvertisementByUser(authString);
+            return ResponseEntity.ok().body(ads);
         } catch (Exception e) {
             log.error("ADvertisement by user error: ", e);
             return ResponseEntity.internalServerError().body("An error occurred when try to get users\' adveertisements");
+        }   
+    }
+    @GetMapping("/visual")
+    public ResponseEntity<?> getAdvertisementVisual(@RequestParam("filename") String filename){
+        try {
+            Resource file = advertisementService.getAdvertisementVisual(filename);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        } catch (StorageFileNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching file");
         }
-        
     }
     
     

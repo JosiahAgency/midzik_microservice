@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.midziklabs.advertisement.controller.CategoryController;
 import com.midziklabs.advertisement.model.CategoryModel;
-import com.midziklabs.advertisement.request.CategoryRequest;
+import com.midziklabs.advertisement.requestDto.CategoryRequest;
 import com.midziklabs.advertisement.service.CategoryService;
 
 @WebMvcTest(CategoryController.class)

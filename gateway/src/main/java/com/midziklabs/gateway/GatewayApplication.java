@@ -1,5 +1,8 @@
 package com.midziklabs.gateway;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -19,9 +22,10 @@ public class GatewayApplication {
 
 	@Bean
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder, JwtValidationGatewayFilterFactory jwtValidationFilter) {
+		Map<String, Object> cors = new HashMap<>();
 		return builder.routes()
 				.route("authentication",r -> r
-					.path("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/user", "/api/v1/auth/admin", "/api/v1/auth/auth-user")
+					.path("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/user", "/api/v1/auth/admin", "/api/v1/auth/auth-user", "/api/v1/auth/welcome")
 					// .filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
 					.uri("lb://authentication")
 				)

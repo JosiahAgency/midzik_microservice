@@ -31,7 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AnalyticsService {
     Firestore firestore = FirestoreClient.getFirestore();
     
-    public GenderAnalyticsModel getGenderAnalytics(String id){    
+    public GenderAnalyticsModel getGenderAnalytics(String id) 
+            throws InterruptedException, ExecutionException, Exception{    
         try {
             CollectionReference collection_ref = firestore.collection("gender_classification");
             DocumentReference doc_ref = collection_ref.document(id);
@@ -50,9 +51,13 @@ public class AnalyticsService {
             log.error("An error occurred when trying to fetch gender analytics data", e.getMessage());
             log.error("error", e);
             return null;
-        }   
+        } catch(Exception e){
+            log.error("An error occurred when trying to fetch gender analytics data", e.getMessage());
+            log.error("error", e);
+            throw new Exception();
+        }
     }
-    public AgeAnalyticsModel getAgeAnalytics(String id){
+    public AgeAnalyticsModel getAgeAnalytics(String id) throws InterruptedException, ExecutionException, Exception{
         try {
             ApiFuture<DocumentSnapshot> future = firestore.collection("age_classification").document(id).get();
             DocumentSnapshot doc_snapshot = future.get();
@@ -71,9 +76,14 @@ public class AnalyticsService {
         } catch (InterruptedException | ExecutionException e) {
             log.error("An error occurred when trying to fetch age analytics data", e.getMessage());
             return null;
+        } catch (Exception e) {
+            log.error("An error occurred when trying to fetch gender analytics data", e.getMessage());
+            log.error("error", e);
+            throw new Exception();
         }
     }
-    public ViewCountAnalyticsModel getViewCountAnalytics(String id){
+    public ViewCountAnalyticsModel getViewCountAnalytics(String id) 
+            throws InterruptedException, ExecutionException, Exception{
         try {
             ApiFuture<DocumentSnapshot> future = firestore.collection("view_count").document(id).get();
             DocumentSnapshot doc_snapshot = future.get();
@@ -92,6 +102,10 @@ public class AnalyticsService {
         } catch (InterruptedException | ExecutionException e) {
             log.error("An error occurred when trying to fetch view count analytics data", e.getMessage());
             return null;
+        } catch (Exception e) {
+            log.error("An error occurred when trying to fetch gender analytics data", e.getMessage());
+            log.error("error", e);
+            throw new Exception();
         }
     }
 }

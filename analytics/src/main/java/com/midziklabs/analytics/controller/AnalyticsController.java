@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,18 +40,52 @@ public class AnalyticsController {
 
     @GetMapping("/gender/{id}")
     public ResponseEntity<?> getGenderAnalytics(@PathVariable("id") String ad_id) {
-        GenderAnalyticsModel model = firestoreService.getGenderAnalytics(ad_id);
-        return ResponseEntity.ok().body(model);
+        try {
+            GenderAnalyticsModel model = firestoreService.getGenderAnalytics(ad_id);
+            return ResponseEntity.ok().body(model);
+        } catch (InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An InterruptedException occurred when trying to get gender analytics " + e);
+        } catch(ExecutionException e){
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An ExecutionException occurred when trying to get gender analytics " + e);
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body("An exception occurred when trying to get gender analytics "+e);
+        } 
     }
     @GetMapping("/age/{id}")
     public ResponseEntity<?> getAgeAnalytics(@PathVariable("id") String ad_id) {
-        AgeAnalyticsModel model = firestoreService.getAgeAnalytics(ad_id);
-        return ResponseEntity.ok().body(model);
+        try {
+            AgeAnalyticsModel model = firestoreService.getAgeAnalytics(ad_id);
+            return ResponseEntity.ok().body(model);
+        } catch (InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An InterruptedException occurred when trying to get gender analytics " + e);
+        } catch (ExecutionException e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An ExecutionException occurred when trying to get gender analytics " + e);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An exception occurred when trying to get gender analytics " + e);
+        }
     }
     @GetMapping("/view_count/{id}")
     public ResponseEntity<?> getViewCOuntAnalytics(@PathVariable("id") String ad_id) {
-        ViewCountAnalyticsModel model = firestoreService.getViewCountAnalytics(ad_id);
-        return ResponseEntity.ok().body(model);
+        
+        try {
+            ViewCountAnalyticsModel model = firestoreService.getViewCountAnalytics(ad_id);
+            return ResponseEntity.ok().body(model);
+        } catch (InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An InterruptedException occurred when trying to get gender analytics " + e);
+        } catch (ExecutionException e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An ExecutionException occurred when trying to get gender analytics " + e);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .body("An exception occurred when trying to get gender analytics " + e);
+        }
     }
     @GetMapping("/weather")
     public ResponseEntity<?> getWeather(@RequestParam("lon") String longitude, @RequestParam("lat") String latitude) {
