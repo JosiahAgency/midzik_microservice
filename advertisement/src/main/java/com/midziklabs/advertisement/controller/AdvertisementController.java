@@ -1,11 +1,13 @@
 package com.midziklabs.advertisement.controller;
 
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +19,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.midziklabs.advertisement.exceptions.StorageFileNotFoundException;
 import com.midziklabs.advertisement.model.AdvertisementModel;
+import com.midziklabs.advertisement.requestDto.AdvertisementRejectionRequest;
 import com.midziklabs.advertisement.requestDto.AdvertisementRequest;
 import com.midziklabs.advertisement.responseDto.AdvertisementByUserResponse;
+import com.midziklabs.advertisement.responseDto.AdvertisementWithUserResponse;
 import com.midziklabs.advertisement.service.AdvertisementService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 
@@ -41,6 +47,7 @@ public class AdvertisementController {
     public ResponseEntity<String> getWelcomePage() {
         return ResponseEntity.ok().body("Hello World");
     }
+    
     @PostMapping("/")
     public ResponseEntity<?> addAdvertisement(
         @RequestParam("title") String title,
@@ -65,10 +72,11 @@ public class AdvertisementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred when trying to save the advertisement: "+e.getMessage());
         }
     }
+    
     @GetMapping("/")
     public ResponseEntity<?> getAdvertisements() {
         try {
-            List<AdvertisementModel> advertisement_list = advertisementService.getAllAdvertisements();
+            List<AdvertisementWithUserResponse> advertisement_list = advertisementService.getAllAdvertisements();
             if (advertisement_list.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
@@ -94,12 +102,19 @@ public class AdvertisementController {
             return ResponseEntity.internalServerError().body("An error occurred when try to get users\' adveertisements");
         }   
     }
+    
     @GetMapping("/visual")
     public ResponseEntity<?> getAdvertisementVisual(@RequestParam("filename") String filename){
         try {
             Resource file = advertisementService.getAdvertisementVisual(filename);
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+            String contentType = Files.probeContentType(file.getFile().toPath());
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // Default content type
+            }
+            return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+                .body(file);
         } catch (StorageFileNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e){
@@ -107,7 +122,22 @@ public class AdvertisementController {
         }
     }
     
-    
-    
-
+    @GetMapping("/approve")
+    public ResponseEntity<?> approveAdvertisement(@RequestParam("id") String id){
+        try {
+            AdvertisementModel ad = advertisementService.approveAdvertisement(Long.valueOf(id));
+            return ResponseEntity.ok().body(ad);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred when trying to approve the advertisement: "+e.getMessage());
+        }
+    }
+    @PostMapping("/reject")
+    public ResponseEntity<?> rejectAdvertisement(@RequestBody AdvertisementRejectionRequest rejectionRequest){
+        try {
+            advertisementService.rejectAdvertisement(rejectionRequest);
+            return ResponseEntity.ok().body("Advertisement rejected successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred when trying to reject the advertisement: "+e.getMessage());
+        }
+    }
 }
