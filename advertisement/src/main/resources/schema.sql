@@ -1,0 +1,14 @@
+DROP TABLE if EXISTS t_categories;
+DROP TABLE if EXISTS t_locations;
+
+CREATE TABLE t_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+CREATE TABLE t_locations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    county VARCHAR(255) NOT NULL,
+    price DOUBLE NOT NULL
+);

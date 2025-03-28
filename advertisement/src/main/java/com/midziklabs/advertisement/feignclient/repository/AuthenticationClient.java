@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "authentication", url = "http://localhost:8082", path = "/api/v1/auth")
+@FeignClient(name = "authentication", url = "http://authentication:8082", path = "/api/v1/auth")
 public interface AuthenticationClient {
 
     @GetMapping("/auth-user")

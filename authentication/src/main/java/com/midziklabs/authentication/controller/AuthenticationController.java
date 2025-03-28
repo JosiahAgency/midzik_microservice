@@ -3,6 +3,7 @@ package com.midziklabs.authentication.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.midziklabs.authentication.AuthenticationApplication;
+import com.midziklabs.authentication.broker.producer.UserModelProducer;
 import com.midziklabs.authentication.configuration.ApplicationConfiguration;
 import com.midziklabs.authentication.configuration.AuthConfig;
 import com.midziklabs.authentication.dto.LoginResponse;
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +54,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final RoleRepository roleRepository;
     private final UserService userService;
+    private final UserModelProducer userModelProducer;
 
     @GetMapping("/welcome")
     public String getWelcomePage() {
@@ -72,6 +75,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<UserModel> register(@RequestBody RegisterUserDto registerUserDto){
         UserModel registeredUser = authenticationService.register(registerUserDto);
+        userModelProducer.sendMessage(registeredUser);
         return ResponseEntity.ok(registeredUser);
     }
     @PostMapping("/login")
@@ -108,6 +112,14 @@ public class AuthenticationController {
                 "User not found"
             );
         }
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e){
+        log.error("Exception: "+e.getMessage());
+        return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(
+            "An error occurred"
+        );
     }
     
     

@@ -35,6 +35,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, base_url + "/advertisement/").hasAnyAuthority("Administrator","Reviewer")
                         .requestMatchers(HttpMethod.GET, base_url+"/advertisement/user").hasAuthority("User")
                         .requestMatchers(HttpMethod.GET, base_url+"/advertisement/visual").hasAnyAuthority("Administrator", "Reviewer", "User")
+                        .requestMatchers(HttpMethod.GET, base_url+"/advertisement/approve").hasAnyAuthority("Administrator", "Reviewer")
+                        .requestMatchers(HttpMethod.GET, base_url+"/advertisement/reject").hasAnyAuthority("Administrator", "Reviewer")
                         /* Category routes */
                         .requestMatchers(HttpMethod.GET, base_url + "/category/").hasAnyAuthority("Administrator", "User", "Reviewer")
                         .requestMatchers(HttpMethod.GET, base_url + "/category/name/{name}").hasAnyAuthority("Administrator", "User")

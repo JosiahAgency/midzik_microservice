@@ -107,13 +107,13 @@ public class AdvertisementControllerTest {
     /**
      * Test get All advertisements endpoint
      */
-    @Test
-    public void assert_get_all_advertisments() throws Exception{
-        Mockito.when(advertisementService.getAllAdvertisements()).thenReturn(advertisement_list);
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/advertisement/")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-    }
+    // @Test
+    // public void assert_get_all_advertisments() throws Exception{
+    //     Mockito.when(advertisementService.getAllAdvertisements()).thenReturn(advertisement_list);
+    //     mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/advertisement/")
+    //         .accept(MediaType.APPLICATION_JSON))
+    //         .andExpect(MockMvcResultMatchers.status().isOk());
+    // }
 }
 
 

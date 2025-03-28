@@ -16,6 +16,10 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
+
+/*
+ * This class shows the advertisements owned by a user
+ */
 @Data
 public class AdvertisementByUserResponse {
     private Long id;

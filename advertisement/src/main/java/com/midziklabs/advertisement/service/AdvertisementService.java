@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.midziklabs.advertisement.broker.model.UserModelReplica;
+import com.midziklabs.advertisement.broker.producer.RejectionMessageProducer;
+import com.midziklabs.advertisement.broker.repository.UserModelReplicaRepository;
 import com.midziklabs.advertisement.exceptions.StorageFileNotFoundException;
 import com.midziklabs.advertisement.feignclient.model.AuthUser;
 import com.midziklabs.advertisement.feignclient.repository.AuthenticationClient;
@@ -29,8 +32,10 @@ import com.midziklabs.advertisement.model.AdvertisementModel;
 import com.midziklabs.advertisement.model.CategoryModel;
 import com.midziklabs.advertisement.model.LocationModel;
 import com.midziklabs.advertisement.repository.AdvertisementRepository;
+import com.midziklabs.advertisement.requestDto.AdvertisementRejectionRequest;
 import com.midziklabs.advertisement.requestDto.AdvertisementRequest;
 import com.midziklabs.advertisement.responseDto.AdvertisementByUserResponse;
+import com.midziklabs.advertisement.responseDto.AdvertisementWithUserResponse;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,11 +46,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AdvertisementService {
     private final AdvertisementRepository advertisementRepository;
+    private final UserModelReplicaRepository userModelReplicaRepository;
     private final FileStorageService fileStorageService;
     private final CategoryService categoryService;
     private final LocationService locationService;
     private final AuthenticationClient authenticationClient;
     private final ObjectMapper objectMapper;
+    private final RejectionMessageProducer rejectionMessageProducer;
 
     @Transactional
     public AdvertisementModel addAdvertisement(AdvertisementRequest request) throws JsonMappingException, JsonProcessingException{
@@ -73,8 +80,27 @@ public class AdvertisementService {
         return advertisementRepository.save(new_advertisement);
     }
 
-    public List<AdvertisementModel> getAllAdvertisements(){
-        return advertisementRepository.findAll();
+    public List<AdvertisementWithUserResponse> getAllAdvertisements(){
+        List<AdvertisementWithUserResponse> result = new ArrayList<>();
+        List<AdvertisementModel> ad_list = advertisementRepository.findAll();
+        for (AdvertisementModel model : ad_list) {
+            log.info("Advertisement Model: "+model.getLocation().size());
+            Optional<UserModelReplica> user = userModelReplicaRepository.findById(Long.valueOf(model.getUserId()));
+            if(user.isPresent()){
+                AdvertisementWithUserResponse ad_response = new AdvertisementWithUserResponse();
+                ad_response.setId(model.getId());
+                ad_response.setEmail(user.get().getEmail());
+                ad_response.setTitle(model.getTitle());
+                ad_response.setStatus(model.getStatus());
+                ad_response.setCategory(model.getCategory());
+                ad_response.setLocation(model.getLocation());
+                ad_response.setAd_visual(model.getFile_path());
+                ad_response.setReviewer_id(String.valueOf(model.getReviewer_id()));
+                log.info("Ad Response: {}", ad_response.toString());
+                result.add(ad_response);
+            }
+        }
+        return result;
     }
 
     public List<AdvertisementModel> getAdvertisementsByLocation(Long location_id){
@@ -111,5 +137,18 @@ public class AdvertisementService {
 
     public Resource getAdvertisementVisual(String filename) throws StorageFileNotFoundException{
         return fileStorageService.loadAsResource(filename);
+    }
+    
+    public AdvertisementModel approveAdvertisement(Long id){
+        Optional<AdvertisementModel> advertisement = advertisementRepository.findById(id);
+        if(advertisement.isPresent()){
+            advertisement.get().setStatus("Approved");
+            return advertisementRepository.save(advertisement.get());
+        }
+        return null;
+    }
+
+    public void rejectAdvertisement(AdvertisementRejectionRequest request) throws JsonProcessingException{
+        rejectionMessageProducer.sendRejectionMessage(request);
     }
 }
