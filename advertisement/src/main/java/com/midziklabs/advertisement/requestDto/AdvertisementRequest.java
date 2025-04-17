@@ -34,6 +34,7 @@ public class AdvertisementRequest {
     private MultipartFile visuals;
     private String location_ids;
     private Integer loops;
+    private Integer user_id;
 
     public AdvertisementModel toAdvertisementModel(String file_path, Optional<CategoryModel> category,Set<LocationModel> location_set_list) {
         AdvertisementModel model = new AdvertisementModel();
@@ -42,7 +43,7 @@ public class AdvertisementRequest {
         model.setCategory(category.get());
         model.setStatus("Pending");
         model.setReviewer_id(1);
-        model.setUserId(2);
+        model.setUserId(this.getUser_id());
         model.setFile_path(file_path);
         model.setLocation(location_set_list);
         model.setLoops(loops);

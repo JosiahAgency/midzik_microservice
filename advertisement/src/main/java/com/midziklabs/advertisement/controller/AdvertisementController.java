@@ -55,6 +55,7 @@ public class AdvertisementController {
         @RequestParam("category_id") String category_id, 
         @RequestParam("location_ids") String location_ids,
         @RequestParam("loops") String loops,
+        @RequestParam("user_id") String user_id,
         @RequestPart("visuals") MultipartFile visuals) {
         try {
             log.error("LOcation ids received: "+location_ids);
@@ -65,6 +66,7 @@ public class AdvertisementController {
             request.setVisuals(visuals);
             request.setLocation_ids(location_ids);
             request.setLoops(Integer.valueOf(loops));
+            request.setUser_id(Integer.valueOf(user_id));
             AdvertisementModel savedAdverisement = advertisementService.addAdvertisement(request);
             URI location = URI.create(String.format("/api/v1/advertisement/%s", savedAdverisement.getId()));
             return ResponseEntity.created(location).body(savedAdverisement);

@@ -1,4 +1,4 @@
-package com.midziklabs.payments.dto;
+package com.midziklabs.payments.responseDto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
