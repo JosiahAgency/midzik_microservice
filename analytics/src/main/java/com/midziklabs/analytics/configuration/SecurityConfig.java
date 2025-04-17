@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(r -> r
                     .requestMatchers(HttpMethod.GET, base_url+"/analytics/**").hasAuthority("User")
+                    .requestMatchers("/actuators/**").permitAll()
                     .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);
         return http.build();

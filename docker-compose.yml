@@ -3,87 +3,177 @@ services:
     build: 
       context: ./service-registry
       dockerfile: ./docker/Dockerfile
+    container_name: registry
     ports:
       - "8761:8761"
     networks:
       - midzik-springboot-network
+    depends_on:
+      kafka:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      start_period: 2m
+      retries: 3
+      test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8761/actuator/health || exit 1"]
   gateway:
     build:
       context: ./gateway
       dockerfile: ./docker/Dockerfile
+    container_name: gateway
     ports:
       - "8080:8080"
     depends_on:
-      - registry
-      - advertisement
-      - analytics
-      - authentication
+      advertisement:
+        condition: service_started
+      analytics:
+        condition: service_started
+      authentication:
+        condition: service_started
+      notification:
+        condition: service_started
+      payments:
+        condition: service_started
     networks:
       - midzik-springboot-network
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
   mysql:
-    image: mysql/mysql-server:8.0
+    image: mysql:8.0
+    container_name: mysql
     ports:
       - "3306:3306"
     environment:
       MYSQL_USER: midzik_admin
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: midzik
     command: --default-authentication-plugin=caching_sha2_password
     networks:
       - midzik-springboot-network
     volumes:
       - ./db:/var/lib/mysql
-      - ./init-scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p=password"]
       interval: 10s
-      retries: 5
       timeout: 5s
+      retries: 5
+      start_period: 30s
+
   advertisement:  
     build:
       context: ./advertisement
       dockerfile: ./docker/Dockerfile
+    container_name: advertisement
     ports:
       - "8081:8081"
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: broker:29092 
     networks:
       - midzik-springboot-network
+    # healthcheck:
+    #   interval: 30s
+    #   timeout: 10s
+    #   start_period: 5m
+    #   retries: 3
+    #   test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8081/actuator/health || exit 1"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      registry:
+        condition: service_healthy
+      authentication:
+        condition: service_started
   authentication:
     build: 
       context: ./authentication
       dockerfile: ./docker/Dockerfile
+    container_name: authentication
     ports:
       - "8082:8082"
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: broker:29092 
     networks:
       - midzik-springboot-network
+    # healthcheck:
+    #   interval: 30s
+    #   timeout: 10s
+    #   start_period: 5m
+    #   retries: 3
+    #   test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8082/actuator/health || exit 1"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      registry:
+        condition: service_healthy
   analytics:
     build: 
       context: ./analytics
       dockerfile: ./docker/Dockerfile
+    container_name: analytics
     ports:
       - "8083:8083"
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
     networks:
       - midzik-springboot-network
+    # healthcheck:
+    #   interval: 30s
+    #   timeout: 10s
+    #   start_period: 5m
+    #   retries: 3
+    #   test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8083/actuator/health || exit 1"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      registry:
+        condition: service_healthy
+      payments:
+        condition: service_started
+      
+  payments:
+    build: 
+      context: ./payments
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8084:8084"
+    container_name: payments
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://registry:8761/eureka
+      # KAFKA_BOOTSTRAP_SERVERS: broker:29092 
+    networks:
+      - midzik-springboot-network
+    # healthcheck:
+    #   interval: 30s
+    #   timeout: 10s
+    #   start_period: 5m
+    #   retries: 3
+    #   test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8084/actuator/health || exit 1"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      registry:
+        condition: service_healthy
+      advertisement:
+        condition: service_started
   notification:
     build: 
       context: ./notification
       dockerfile: ./docker/Dockerfile
+    container_name: notification
     ports:
       - "8085:8085"
     environment:
@@ -91,6 +181,21 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: broker:29092 
     networks:
       - midzik-springboot-network
+    # healthcheck:
+    #   interval: 30s
+    #   timeout: 10s
+    #   start_period: 5m
+    #   retries: 3
+    #   test: ["CMD-SHELL", "curl --fail --silent -H 'X-User-Roles: User' http://localhost:8085/actuator/health || exit 1"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      registry:
+        condition: service_healthy
+      analytics:
+        condition: service_started
 
   kafka:
     image: apache/kafka:latest
@@ -119,5 +224,6 @@ services:
 
 networks:
   midzik-springboot-network:
+    name: midzik-network
     driver: bridge
   

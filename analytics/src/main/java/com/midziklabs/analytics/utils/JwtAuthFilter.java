@@ -30,16 +30,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String rolesHeader = request.getHeader("X-User-Roles");
-        String authorizationHeader = request.getHeader("Authorization");
+        // String authorizationHeader = request.getHeader("Authorization");
         // String cookiesHeader = request.getHeader("Cookie");
 
 
         log.info("USer roles extracted: "+rolesHeader);
-        log.info("AUTHHEADER: "+authorizationHeader);
+        // log.info("AUTHHEADER: "+authorizationHeader);
         // log.info("Cookies header "+cookiesHeader);
-        if (rolesHeader != null && !rolesHeader.isEmpty() && authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
-            String token = authorizationHeader.substring(7);
-            String userEmail = jwtUtil.extractUsername(token);
+        if (rolesHeader != null && !rolesHeader.isEmpty()) {
+            // String token = authorizationHeader.substring(7);
+            // String userEmail = jwtUtil.extractUsername(token);
             List<GrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
