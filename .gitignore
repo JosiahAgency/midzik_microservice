@@ -1,1 +1,2 @@
-db
+# Add docker volume for mysql
+/db
