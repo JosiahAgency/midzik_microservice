@@ -1,4 +1,4 @@
-package com.midziklabs.analytics.configuration;
+package com.midziklabs.payments.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.midziklabs.analytics.utils.JwtAuthFilter;
+import com.midziklabs.payments.utils.JwtAuthFilter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +25,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("Request in security ffilter chain");
+        log.info("Request in security filter chain");
         String base_url = "/api/v1";
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(r -> r
-                    .requestMatchers(HttpMethod.GET, base_url+"/analytics/**").hasAuthority("User")
+                    .requestMatchers(HttpMethod.POST, base_url+"/payments/**").hasAuthority("User")
                     .requestMatchers("/actuators/**").permitAll()
                     .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);

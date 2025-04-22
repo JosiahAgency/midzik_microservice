@@ -49,6 +49,11 @@ public class GatewayApplication {
 					.filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
 					.uri("lb://analytics")
 				)
+				.route("payments", r -> r
+					.path("/api/v1/payments/**")
+					.filters(f -> f.filter(jwtValidationFilter.apply(new JwtValidationGatewayFilterFactory.Config())))
+					.uri("lb://payments")
+				)
 				.build();
 	}
 

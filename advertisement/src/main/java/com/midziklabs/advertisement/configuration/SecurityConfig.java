@@ -58,6 +58,7 @@ public class SecurityConfig {
                                 "Administrator", "Reviewer")
                         .requestMatchers(HttpMethod.DELETE, base_url + "/location/{id}").hasAnyAuthority(
                                 "Administrator", "Reviewer")
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);
         return http.build();

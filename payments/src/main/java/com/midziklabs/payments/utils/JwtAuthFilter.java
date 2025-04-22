@@ -1,11 +1,9 @@
-package com.midziklabs.advertisement.utils;
+package com.midziklabs.payments.utils;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.midziklabs.advertisement.AdvertisementApplication;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,27 +24,20 @@ import org.springframework.security.core.userdetails.User;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-
-    private final AdvertisementApplication advertisementApplication;
-    private final JwtUtil jwtUtil;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String rolesHeader = request.getHeader("X-User-Roles");
-        // String authorizationHeader = request.getHeader("Authorization");
+
 
         log.info("USer roles extracted: "+rolesHeader);
         if (rolesHeader != null && !rolesHeader.isEmpty()) {
-            // String token = authorizationHeader.substring(7);
-            // String userEmail = jwtUtil.extractUsername(token);
             List<GrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
             log.info("Authorities; "+authorities.toString());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(null, null, authorities);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("Authentication: " + SecurityContextHolder.getContext().getAuthentication());
         }
